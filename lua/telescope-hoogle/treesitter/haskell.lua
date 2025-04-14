@@ -16,11 +16,12 @@ local function isImport(name)
          name == SINGLE_UNQUALIFIED_IMPORTS
 end
 
--- Query import statements
--- import :: { name: String, node:: TSNode, mod:: String }
---  | { name: String, node: TSNode, mod:: String, list:: TSNode }
---  | { name: String, node, mod: String }
---  | { name: String, node, mod: String }
+-- Query import statements.
+-- type import ::
+--    { name: String, node:: TSNode, mod:: String, alias: String } @ALIASED_QUALIFIED_IMPORTS
+--  | { name: String, node: TSNode, mod:: String, list:: TSNode } @LIST_IMPORTS
+--  | { name: String, node, mod: String, alias: String } @SINGLE_QUALIFIED_IMPORTS
+--  | { name: String, node, mod: String } @SINGLE_UNQUALIFIED_IMPORTS
 -- Return a list of import
 local function get_haskell_imports()
   local bufnr = 0
@@ -38,7 +39,9 @@ local function get_haskell_imports()
       module: (module) @mod
       names: (import_list) @list) @list-imports
 
-    ((import . module: (module) @mod .)
+    ((import
+       . module: (module) @mod
+         alias: (_) @alias .)
       (#match? "qualified")) @single-qualified-imports
 
     ((import . module: (module (module_id)) @mod .)
