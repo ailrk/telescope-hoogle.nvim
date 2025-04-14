@@ -9,7 +9,8 @@ local previewers = require'telescope.previewers'
 local utils = require'telescope.utils'
 
 local json = require'telescope-hoogle.json'
-local tsrender = require'telescope-hoogle.treesitter'
+local tsrender = require'telescope-hoogle.treesitter.html'
+local hs = require'telescope-hoogle.treesitter.haskell'
 local html = require'telescope-hoogle.html'
 
 local styleTable = {}
@@ -195,11 +196,13 @@ local function prompt_fn(opts)
   return hoogle_cmd
 end
 
+
 M.list = function(opts)
   opts = opts or {}
   opts.cwd = utils.get_lazy_default(opts.cwd, vim.fn.getcwd)
   opts.entry_maker = utils.get_lazy_default(opts.entry_maker, gen_from_hoogle, opts)
   opts.bin = opts.bin and vim.fn.expand(opts.bin) or vim.fn.exepath('hoogle')
+  local imports = hs.get_haskell_imports()
 
   --A Sorter is called by the Picker on each item returned by the Finder. It return a number, which is equivalent to the "distance" between the current prompt and the entry returned by a finder.
   pickers.new(opts, {
